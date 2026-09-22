@@ -40,8 +40,8 @@ describe("resolveRange", () => {
 });
 
 describe("parseFilters", () => {
-  it("defaults to the last 6 months, computed from today in Pacific time", () => {
-    expect(parseFilters({}, NOW)).toEqual({ range: "6m", from: "2026-04-01", to: "2026-09-22", company: null, assignee: null });
+  it("defaults to this month, computed from today in Pacific time", () => {
+    expect(parseFilters({}, NOW)).toEqual({ range: "this_month", from: "2026-09-01", to: "2026-09-22", company: null, assignee: null });
   });
 
   it("uses custom dates only when valid, and swaps a reversed range", () => {
@@ -54,7 +54,7 @@ describe("parseFilters", () => {
 
   it("falls back to the default for an unknown range and trims company/assignee", () => {
     expect(parseFilters({ range: "forever", company: "  Opus Health ", assignee: "" }, NOW)).toMatchObject({
-      range: "6m",
+      range: "this_month",
       company: "Opus Health",
       assignee: null,
     });
@@ -79,7 +79,8 @@ describe("monthlyChartWindow", () => {
 
 describe("filtersToQuery", () => {
   it("round-trips through parseFilters and leaves defaults out", () => {
-    expect(filtersToQuery({ range: "6m", from: null, to: null, company: null, assignee: null })).toBe("/");
+    expect(filtersToQuery({ range: "this_month", from: null, to: null, company: null, assignee: null })).toBe("/");
+    expect(filtersToQuery({ range: "6m", from: null, to: null, company: null, assignee: null })).toBe("/?range=6m");
     const q = filtersToQuery({ range: "custom", from: "2026-01-01", to: "2026-02-15", company: "St. Louis, LLC", assignee: "Bryan Wolfe" });
     const params = Object.fromEntries(new URLSearchParams(q.slice(2)));
     expect(parseFilters(params, NOW)).toEqual({

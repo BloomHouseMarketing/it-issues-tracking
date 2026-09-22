@@ -17,7 +17,7 @@ export const RANGE_PRESETS = [
 
 export type RangePreset = (typeof RANGE_PRESETS)[number]["value"] | "custom";
 
-export const DEFAULT_RANGE: RangePreset = "6m";
+export const DEFAULT_RANGE: RangePreset = "this_month";
 
 /** Months shown in the "On time vs late, by month" chart, including the current one. */
 export const MONTHLY_CHART_MONTHS = 6;

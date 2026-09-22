@@ -122,7 +122,7 @@ create table daily_snapshots (
 - Report label colors: Early `#66ccff`, On Time `#9cd326`, Overdue `#df2f4a`, Late `#bb3354`
 - Show "Last synced: …" from `sync_runs`
 - Filters: date range (on completed_at), company, assignee
-  - Date presets: Today, Yesterday, This week, Last week, This month, Last month, Last 30 days, Last 6 months (default), All time, plus a custom range picked on a calendar. Weeks run Monday to Sunday. "Last 6 months" = the current month plus the 5 before it.
+  - Date presets: Today, Yesterday, This week, Last week, This month (default), Last month, Last 30 days, Last 6 months, All time, plus a custom range picked on a calendar. Weeks run Monday to Sunday. "Last 6 months" = the current month plus the 5 before it.
   - The date filter applies to the KPI cards, late breakdowns, completions table and overdue trend. It does not apply to "Overdue now" (always today's open work) or to the "On time vs late, by month" chart, which always shows the last 6 months (6 bars).
 - All dates are displayed in Pacific time.
 
