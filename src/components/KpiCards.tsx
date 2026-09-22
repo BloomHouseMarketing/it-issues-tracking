@@ -15,7 +15,7 @@ function Kpi({
   return (
     <div className="relative overflow-hidden rounded-xl border border-line bg-surface-1 p-5">
       {accent && <span aria-hidden className={`absolute inset-y-0 left-0 w-1 ${accent}`} />}
-      <p className="text-sm text-ink-2">{label}</p>
+      <p className="text-sm font-semibold text-ink-1">{label}</p>
       <p className="mt-2 text-4xl font-semibold tracking-tight text-ink-1 xl:text-5xl">{value}</p>
       <p className="mt-2 text-sm text-ink-3">{detail}</p>
     </div>

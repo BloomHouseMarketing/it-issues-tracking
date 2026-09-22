@@ -94,7 +94,7 @@ export function Listbox({
       </button>
 
       {open && (
-        <div className="absolute left-0 z-30 mt-2 w-72 overflow-hidden rounded-xl border border-line bg-surface-2 shadow-2xl shadow-black/40">
+        <div className="absolute left-0 z-30 mt-2 w-72 overflow-hidden rounded-xl border border-line bg-surface-2 shadow-2xl shadow-pop">
           {searchable && (
             <div className="border-b border-line p-2">
               <input
@@ -133,7 +133,7 @@ export function Listbox({
                   onMouseEnter={() => setActive(i)}
                   onClick={() => pick(o.value)}
                   className={`flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm ${
-                    i === active ? "bg-white/5" : ""
+                    i === active ? "bg-hover" : ""
                   } ${selected ? "font-semibold text-ink-1" : "text-ink-2"} ${i === 0 ? "border-b border-line/0" : ""}`}
                 >
                   <span className="w-4 shrink-0">{selected && <Check />}</span>

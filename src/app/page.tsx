@@ -6,6 +6,9 @@ import { OverdueTrend } from "@/components/charts/OverdueTrend";
 import { FilterBar } from "@/components/FilterBar";
 import { KpiCards } from "@/components/KpiCards";
 import { RefreshButton } from "@/components/RefreshButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { parseTheme, THEME_COOKIE } from "@/lib/theme";
+import { cookies } from "next/headers";
 import { CompletionsTable, OverdueTable } from "@/components/Tables";
 import { getDashboardData } from "@/lib/dashboard/data";
 import { describeRange, monthlyChartWindow, parseFilters, rangeLabel } from "@/lib/dashboard/filters";
@@ -18,6 +21,7 @@ export const maxDuration = 300;
 
 export default async function DashboardPage({ searchParams }: PageProps<"/">) {
   const filters = parseFilters(await searchParams);
+  const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value);
   const data = await getDashboardData(filters);
 
   const today = dateInPT(new Date());
@@ -40,6 +44,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/">) {
         </div>
         <div className="flex items-center gap-3">
           <RefreshButton />
+          <ThemeToggle initial={theme} />
           <form action={logout}>
             <button type="submit" className="px-2 py-2 text-sm text-ink-3 hover:text-ink-1">
               Sign out

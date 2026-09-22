@@ -1,8 +1,31 @@
 @import "tailwindcss";
 
-/* Dark theme only: the mandated Report colors (light blue, light green) need a
-   dark surface for contrast, and it suits a wall-mounted TV. */
+/* Light is the default theme; dark is opt-in via <html data-theme="dark">
+   (set from a cookie on the server, so there is no flash on load). */
 :root {
+  color-scheme: light;
+  --surface-0: #f4f6f9;
+  --surface-1: #ffffff;
+  --surface-2: #ffffff;
+  --line: #e2e6ec;
+  --grid: #eceff3;
+  --ink-1: #111827;
+  --ink-2: #4b5563;
+  --ink-3: #5f6673;
+  --accent: #0873b5;
+  --on-accent: #ffffff;
+  --danger: #c62839;
+  --hover: rgb(17 24 39 / 0.05);
+  --pop: rgb(17 24 39 / 0.12);
+
+  /* Report labels (CLAUDE.md). Marks only, never text. */
+  --report-early: #66ccff;
+  --report-ontime: #9cd326;
+  --report-overdue: #df2f4a;
+  --report-late: #bb3354;
+}
+
+:root[data-theme="dark"] {
   color-scheme: dark;
   --surface-0: #0f1115;
   --surface-1: #171a20;
@@ -13,13 +36,10 @@
   --ink-2: #b4b9c4;
   --ink-3: #8a909c;
   --accent: #66ccff;
+  --on-accent: #0f1115;
   --danger: #ff6b81;
-
-  /* Report labels (CLAUDE.md). Marks only, never text. */
-  --report-early: #66ccff;
-  --report-ontime: #9cd326;
-  --report-overdue: #df2f4a;
-  --report-late: #bb3354;
+  --hover: rgb(255 255 255 / 0.05);
+  --pop: rgb(0 0 0 / 0.4);
 }
 
 @theme inline {
@@ -32,6 +52,9 @@
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
   --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-hover: var(--hover);
+  --color-pop: var(--pop);
   --color-danger: var(--danger);
   --color-early: var(--report-early);
   --color-ontime: var(--report-ontime);

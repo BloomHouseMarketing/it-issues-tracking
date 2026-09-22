@@ -101,7 +101,7 @@ export function DateRangePicker({
         <div
           role="dialog"
           aria-label="Choose a date range"
-          className="absolute left-0 z-30 mt-2 flex w-[min(40rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl border border-line bg-surface-2 shadow-2xl shadow-black/40 sm:flex-row"
+          className="absolute left-0 z-30 mt-2 flex w-[min(40rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl border border-line bg-surface-2 shadow-2xl shadow-pop sm:flex-row"
         >
           {/* Presets */}
           <ul className="flex shrink-0 flex-col gap-0.5 border-b border-line p-2 sm:w-48 sm:border-b-0 sm:border-r">
@@ -112,7 +112,7 @@ export function DateRangePicker({
                   <button
                     type="button"
                     onClick={() => pickPreset(p.value)}
-                    className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-white/5 ${
+                    className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-hover ${
                       selected ? "font-semibold text-ink-1" : "text-ink-2"
                     }`}
                   >
@@ -131,7 +131,7 @@ export function DateRangePicker({
                 type="button"
                 aria-label="Previous month"
                 onClick={() => setMonth(monthStart(month, -1))}
-                className="rounded-md p-1.5 text-ink-2 hover:bg-white/5 hover:text-ink-1"
+                className="rounded-md p-1.5 text-ink-2 hover:bg-hover hover:text-ink-1"
               >
                 <Chevron dir="left" />
               </button>
@@ -141,7 +141,7 @@ export function DateRangePicker({
                 aria-label="Next month"
                 disabled={monthStart(month, 1) > today}
                 onClick={() => setMonth(monthStart(month, 1))}
-                className="rounded-md p-1.5 text-ink-2 hover:bg-white/5 hover:text-ink-1 disabled:opacity-30 disabled:hover:bg-transparent"
+                className="rounded-md p-1.5 text-ink-2 hover:bg-hover hover:text-ink-1 disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 <Chevron dir="right" />
               </button>
@@ -173,7 +173,7 @@ export function DateRangePicker({
                     className={`relative h-9 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-25 ${
                       inRange && !isStart && !isEnd ? "bg-accent/15 text-ink-1" : ""
                     } ${isStart ? "rounded-l-md" : ""} ${isEnd ? "rounded-r-md" : ""} ${
-                      isStart || isEnd ? "bg-accent font-semibold text-surface-0" : inMonth ? "text-ink-2 hover:bg-white/5" : "text-ink-3/50 hover:bg-white/5"
+                      isStart || isEnd ? "bg-accent font-semibold text-on-accent" : inMonth ? "text-ink-2 hover:bg-hover" : "text-ink-3/50 hover:bg-hover"
                     }`}
                   >
                     {Number(d.slice(8))}
@@ -198,7 +198,7 @@ export function DateRangePicker({
                   type="button"
                   disabled={!start || (!draftChanged && range === "custom")}
                   onClick={applyCustom}
-                  className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-surface-0 disabled:opacity-40"
+                  className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-on-accent disabled:opacity-40"
                 >
                   Apply
                 </button>
