@@ -1,26 +1,59 @@
 @import "tailwindcss";
 
+/* Dark theme only: the mandated Report colors (light blue, light green) need a
+   dark surface for contrast, and it suits a wall-mounted TV. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+  --surface-0: #0f1115;
+  --surface-1: #171a20;
+  --surface-2: #1f232b;
+  --line: #2c313b;
+  --grid: #2a2e37;
+  --ink-1: #f4f5f7;
+  --ink-2: #b4b9c4;
+  --ink-3: #8a909c;
+  --accent: #66ccff;
+  --danger: #ff6b81;
+
+  /* Report labels (CLAUDE.md). Marks only, never text. */
+  --report-early: #66ccff;
+  --report-ontime: #9cd326;
+  --report-overdue: #df2f4a;
+  --report-late: #bb3354;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-grid: var(--grid);
+  --color-ink-1: var(--ink-1);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --color-early: var(--report-early);
+  --color-ontime: var(--report-ontime);
+  --color-overdue: var(--report-overdue);
+  --color-late: var(--report-late);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+body {
+  background: var(--surface-0);
+  color: var(--ink-1);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Scale everything up on big screens (TV) without a separate layout. */
+@media (min-width: 2200px) {
+  html {
+    font-size: 20px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.tabular {
+  font-variant-numeric: tabular-nums;
 }

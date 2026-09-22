@@ -69,7 +69,7 @@ monday.com --(GraphQL, server-side)--> /api/sync (Next.js route) --upsert--> Sup
 - **completed_at:** derive it from the board's activity log (`boards { activity_logs(column_ids: ["status"], limit: 500, page: N) }`). Use the latest event where `value.label.is_done === true` and `previous_value.label.is_done !== true`. `created_at` is in units of 100 ns, so `ms = Number(created_at) / 1e4`. There are about 1,200 status events in total, so reading all pages on each run is fine. After a full run, the sync can switch to reading only recent pages.
 - Writes a row to `sync_runs` (started_at, finished_at, items_synced, ok, error).
 - Must stay within monday's API complexity budget: request only the needed columns, run pages sequentially, and retry once after 60 s if the error mentions "Complexity budget exhausted".
-- Trigger: every 15 minutes via **Vercel Cron** (GET `/api/sync`). No n8n involvement in the sync; the app reads the monday board directly. Sub-daily crons need the Vercel Pro plan. Also add a "Refresh now" button in the UI that calls a server action, which triggers the sync.
+- Trigger: every 15 minutes via **Vercel Cron** (GET `/api/sync`, configured in `vercel.json`). No n8n involvement in the sync; the app reads the monday board directly. Sub-daily crons need the Vercel Pro plan. Also add a "Refresh now" button in the UI that calls a server action, which triggers the sync.
 
 ### Supabase schema
 
@@ -126,12 +126,14 @@ create table daily_snapshots (
 
 ## Access control
 
-This is internal company data, so the dashboard must not be publicly readable. Use one of:
+This is internal company data, so the dashboard must not be publicly readable.
 
-- Vercel Deployment Protection (password or Vercel auth), **or**
-- Supabase Auth with email magic links restricted to the company domain.
+**Decision:** a single shared dashboard password, checked by the app itself.
 
-Pick one before building UI pages; the default is Vercel password protection.
+- The password is in the `DASHBOARD_PASSWORD` environment variable (never in the code or repo).
+- `src/proxy.ts` sends every request without a valid session cookie to `/login`. `/api/sync` is excluded because it has its own `CRON_SECRET` check.
+- The session cookie is an HMAC keyed by the password (httpOnly, 30 days). Changing the password signs everyone out.
+- Server Actions (such as "Refresh now") check the session themselves, because they are reachable by direct POST.
 
 ## Environment variables
 
@@ -141,6 +143,7 @@ Pick one before building UI pages; the default is Vercel password protection.
 | `SUPABASE_URL` | Vercel | |
 | `SUPABASE_SERVICE_ROLE_KEY` | Vercel (server only) | Never expose to the client |
 | `CRON_SECRET` | Vercel | Random 32+ character string; Vercel Cron sends it as a Bearer token |
+| `DASHBOARD_PASSWORD` | Vercel (server only) | The shared password for the dashboard login |
 
 Never commit secrets. Provide `.env.example`.
 

@@ -7,13 +7,13 @@ Shows how the Coastal IT team performs against due dates. Data is synced from th
 - [x] Phase 1: Supabase schema (`supabase/migrations/`)
 - [x] Phase 2: `/api/sync` with unit tests; initial sync verified (302 real rated items: 43 Early, 89 On Time, 170 Late)
 - [x] Phase 3: SQL views (`supabase/migrations/20260922010000_metric_views.sql`)
-- [ ] Phase 4: Dashboard UI
-- [ ] Phase 5: Scheduled sync, access control, Vercel deploy
+- [x] Phase 4: Dashboard UI with password login
+- [ ] Phase 5: Deploy to Vercel (cron is configured in `vercel.json`)
 
 ## Setup
 
 1. `npm install`
-2. Copy `.env.example` to `.env.local` and fill in all four values.
+2. Copy `.env.example` to `.env.local` and fill in all five values.
 3. Apply the migrations in order: paste each file in `supabase/migrations/` into the Supabase SQL editor, or run `supabase db push` with the Supabase CLI.
 
 ## Run the sync and check counts
@@ -27,10 +27,19 @@ npm run sync -- --dry-run   # reads monday only, writes nothing
 Or call the deployed route:
 
 ```bash
-curl -X POST https://<your-app>/api/sync -H "Authorization: Bearer $CRON_SECRET"
+curl https://<your-app>/api/sync -H "Authorization: Bearer $CRON_SECRET"
 ```
 
 You can also paste `supabase/queries/verify_counts.sql` into the SQL editor.
+
+## Dashboard
+
+One page at `/`, behind a password login (`DASHBOARD_PASSWORD`).
+
+- KPI cards, monthly on-time vs late, the overdue trend, late completions by company and assignee, the overdue table and the last 30 days of completions.
+- Filters (completion date range, company, assignee) live in the URL, so a filtered view can be bookmarked or shown on a TV.
+- The page re-fetches every 5 minutes. "Refresh now" runs a full sync right away.
+- Dark theme only: the required Report colors need a dark background for contrast.
 
 ## Metrics in SQL
 
