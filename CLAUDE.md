@@ -117,11 +117,13 @@ create table daily_snapshots (
 
 - One page, clean and responsive, readable on a laptop and a TV screen.
 - Top KPI cards: Completed on time, Completed late, On-time rate %, Avg days late, **Overdue now**
-- Charts: monthly on-time vs late (stacked bar), overdue count trend (from `daily_snapshots`), late items by assignee or company
-- Tables: current overdue items, and recent completions (last 30 days) with their Report label
+- Charts: monthly on-time vs late (stacked bar, last 6 months), overdue count trend (from `daily_snapshots`), late items by assignee or company
+- Tables: current overdue items, and rated completions in the selected date range with their Report label
 - Report label colors: Early `#66ccff`, On Time `#9cd326`, Overdue `#df2f4a`, Late `#bb3354`
 - Show "Last synced: …" from `sync_runs`
 - Filters: date range (on completed_at), company, assignee
+  - Date presets: Today, Yesterday, This week, Last week, This month, Last month, Last 30 days, Last 6 months (default), All time, plus a custom range picked on a calendar. Weeks run Monday to Sunday. "Last 6 months" = the current month plus the 5 before it.
+  - The date filter applies to the KPI cards, late breakdowns, completions table and overdue trend. It does not apply to "Overdue now" (always today's open work) or to the "On time vs late, by month" chart, which always shows the last 6 months (6 bars).
 - All dates are displayed in Pacific time.
 
 ## Access control

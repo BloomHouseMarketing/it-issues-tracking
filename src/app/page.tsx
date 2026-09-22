@@ -6,10 +6,11 @@ import { OverdueTrend } from "@/components/charts/OverdueTrend";
 import { FilterBar } from "@/components/FilterBar";
 import { KpiCards } from "@/components/KpiCards";
 import { RefreshButton } from "@/components/RefreshButton";
-import { OverdueTable, RecentTable } from "@/components/Tables";
+import { CompletionsTable, OverdueTable } from "@/components/Tables";
 import { getDashboardData } from "@/lib/dashboard/data";
-import { parseFilters, RANGE_PRESETS } from "@/lib/dashboard/filters";
+import { describeRange, monthlyChartWindow, parseFilters, rangeLabel } from "@/lib/dashboard/filters";
 import { formatAgo, formatDate, formatDateTimePT } from "@/lib/format";
+import { dateInPT } from "@/lib/time";
 import { logout } from "./login/actions";
 
 // "Refresh now" runs a full sync inside this page's Server Action.
@@ -19,10 +20,9 @@ export default async function DashboardPage({ searchParams }: PageProps<"/">) {
   const filters = parseFilters(await searchParams);
   const data = await getDashboardData(filters);
 
-  const rangeLabel =
-    filters.range === "custom"
-      ? `${filters.from ? formatDate(filters.from) : "Start"} – ${filters.to ? formatDate(filters.to) : "today"}`
-      : RANGE_PRESETS.find((p) => p.value === filters.range)!.label;
+  const today = dateInPT(new Date());
+  const window6m = monthlyChartWindow(today);
+  const period = `${rangeLabel(filters.range)} (${describeRange(filters.from, filters.to)})`;
   const scope = [filters.company, filters.assignee].filter(Boolean).join(" · ");
   const lastFailed = data.lastRun && data.lastRun.ok === false;
 
@@ -49,28 +49,34 @@ export default async function DashboardPage({ searchParams }: PageProps<"/">) {
       </header>
 
       {/* Keyed so the uncontrolled inputs reset when the URL changes. */}
-      <FilterBar key={JSON.stringify(filters)} filters={filters} companies={data.options.companies} assignees={data.options.assignees} />
+      <FilterBar
+        key={JSON.stringify(filters)}
+        filters={filters}
+        today={today}
+        companies={data.options.companies}
+        assignees={data.options.assignees}
+      />
 
-      <KpiCards kpis={data.kpis} open={data.open} />
+      <KpiCards kpis={data.kpis} open={data.open} period={period} />
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
         <Card
           title="On time vs late, by month completed"
-          subtitle={`${rangeLabel}${scope ? ` · ${scope}` : ""} · rated completions, Pacific time`}
+          subtitle={`Last 6 months, not affected by the date filter${scope ? ` · ${scope}` : ""}`}
           className="xl:col-span-2"
         >
-          <MonthlyChart months={data.months} />
+          <MonthlyChart months={data.months} firstMonth={window6m.from.slice(0, 7)} lastMonth={window6m.to.slice(0, 7)} />
         </Card>
-        <Card title="Overdue items over time" subtitle="Daily count of open items marked Overdue (all companies)">
+        <Card title="Overdue items over time" subtitle={`Daily count of open items marked Overdue · ${period} · all companies`}>
           <OverdueTrend snapshots={data.snapshots} />
         </Card>
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <Card title="Late completions by company" subtitle="An item with several companies counts under each">
+        <Card title="Late completions by company" subtitle={`${period} · an item with several companies counts under each`}>
           <LateBars rows={data.byCompany} noneLabel="No company" />
         </Card>
-        <Card title="Late completions by assignee" subtitle="Many older items have no assignee">
+        <Card title="Late completions by assignee" subtitle={`${period} · many older items have no assignee`}>
           <LateBars rows={data.byAssignee} noneLabel="Unassigned" />
         </Card>
       </div>
@@ -83,16 +89,18 @@ export default async function DashboardPage({ searchParams }: PageProps<"/">) {
       </Card>
 
       <Card
-        title={`Completed in the last 30 days (${data.recent.length})`}
-        subtitle={`Rated completions, newest first${scope ? ` · ${scope}` : ""}`}
+        title={`Completions (${data.completions.length})`}
+        subtitle={`Rated completions, newest first · ${period}${scope ? ` · ${scope}` : ""}`}
       >
-        <RecentTable items={data.recent} />
+        <CompletionsTable items={data.completions} />
       </Card>
 
       <footer className="pb-4 text-xs leading-relaxed text-ink-3">
         On-time rate = (Early + On Time) ÷ all rated completions in the Completed group. Average, median and max days late use Days
         Delayed on Late items. Test items (any word starting with “test” in the name) are excluded everywhere. The date filter applies to
-        completion dates; company and assignee filters apply to everything except the overdue trend. All dates are Pacific time.
+        completion dates (KPIs, late breakdowns, completions table) and to the overdue trend; it does not change “Overdue now”, which
+        is always today’s open work, or the monthly chart, which always shows the last 6 months. Company and assignee filters apply to
+        everything except the overdue trend. Weeks run Monday to Sunday. All dates are Pacific time.
       </footer>
     </main>
   );

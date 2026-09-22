@@ -22,8 +22,12 @@ function Kpi({
   );
 }
 
-export function KpiCards({ kpis, open }: Pick<DashboardData, "kpis" | "open">) {
+export function KpiCards({ kpis, open, period }: Pick<DashboardData, "kpis" | "open"> & { period: string }) {
   return (
+    <div>
+    <p className="mb-2 text-xs text-ink-3">
+      Completions: {period} · Overdue now: as of today
+    </p>
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
       <Kpi
         label="Completed on time"
@@ -44,6 +48,7 @@ export function KpiCards({ kpis, open }: Pick<DashboardData, "kpis" | "open">) {
         detail={`${formatNumber(open.total)} open · ${formatNumber(open.dueToday)} due today · ${formatNumber(open.noDueDate)} no due date`}
         accent="bg-overdue"
       />
+    </div>
     </div>
   );
 }

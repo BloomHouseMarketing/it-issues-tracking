@@ -2,7 +2,8 @@
 // functions (supabase/migrations/*_metric_views.sql); this only fetches.
 import "server-only";
 import { createAdminClient } from "../supabase/admin";
-import { toRpcArgs, type Filters } from "./filters";
+import { dateInPT } from "../time";
+import { monthlyChartWindow, toRpcArgs, type Filters } from "./filters";
 
 export interface Kpis {
   population: number;
@@ -71,7 +72,8 @@ export interface DashboardData {
     noDueDate: number;
     todayPT: string;
   };
-  recent: CompletedItem[];
+  /** Rated completions in the selected date range, newest first. */
+  completions: CompletedItem[];
   snapshots: Snapshot[];
   lastSuccess: SyncRun | null;
   lastRun: SyncRun | null;
@@ -107,24 +109,41 @@ function uniqueSorted(lists: string[][]): string[] {
 export async function getDashboardData(filters: Filters): Promise<DashboardData> {
   const db = createAdminClient();
   const args = toRpcArgs(filters);
+  // The monthly chart ignores the date filter: always the last 6 months.
+  const monthArgs = toRpcArgs({ ...filters, ...monthlyChartWindow(dateInPT(new Date())) });
 
-  const [summary, months, byCompany, byAssignee, openItems, openSummary, recent, snapshots, lastSuccess, lastRun, optionRows] =
+  let completionsQuery = db
+    .from("v_completed_performance")
+    .select("item_id, name, report, days_delayed, due_date, completed_at, company, assignees, monday_url")
+    .order("completed_at", { ascending: false, nullsFirst: false });
+  if (filters.from) completionsQuery = completionsQuery.gte("completed_date_pt", filters.from);
+  if (filters.to) completionsQuery = completionsQuery.lte("completed_date_pt", filters.to);
+
+  let snapshotsQuery = db
+    .from("daily_snapshots")
+    .select("snapshot_date, overdue_count, open_count")
+    .order("snapshot_date", { ascending: false })
+    .limit(400);
+  if (filters.from) snapshotsQuery = snapshotsQuery.gte("snapshot_date", filters.from);
+  if (filters.to) snapshotsQuery = snapshotsQuery.lte("snapshot_date", filters.to);
+
+  const [summary, months, byCompany, byAssignee, openItems, openSummary, completions, snapshots, lastSuccess, lastRun, optionRows] =
     await Promise.all([
       db.rpc("completed_performance_summary", args),
-      db.rpc("completed_performance_breakdown", { p_dimension: "month", ...args }),
+      db.rpc("completed_performance_breakdown", { p_dimension: "month", ...monthArgs }),
       db.rpc("completed_performance_breakdown", { p_dimension: "company", ...args }),
       db.rpc("completed_performance_breakdown", { p_dimension: "assignee", ...args }),
       db.from("v_open_items").select("*"),
       db.from("v_open_work_summary").select("as_of_date_pt").single(),
-      db.from("v_recent_completions").select("*"),
-      db.from("daily_snapshots").select("snapshot_date, overdue_count, open_count").order("snapshot_date", { ascending: false }).limit(90),
+      completionsQuery,
+      snapshotsQuery,
       db.from("sync_runs").select("*").eq("ok", true).order("finished_at", { ascending: false }).limit(1).maybeSingle(),
       db.from("sync_runs").select("*").order("started_at", { ascending: false }).limit(1).maybeSingle(),
       db.from("v_completed_performance").select("company, assignees"),
     ]);
 
   for (const [name, res] of Object.entries({
-    summary, months, byCompany, byAssignee, openItems, openSummary, recent, snapshots, lastSuccess, lastRun, optionRows,
+    summary, months, byCompany, byAssignee, openItems, openSummary, completions, snapshots, lastSuccess, lastRun, optionRows,
   })) {
     if (res.error) throw new Error(`Loading ${name}: ${res.error.message}`);
   }
@@ -149,7 +168,7 @@ export async function getDashboardData(filters: Filters): Promise<DashboardData>
       noDueDate: allOpen.filter((i) => !i.due_date).length,
       todayPT,
     },
-    recent: (recent.data as CompletedItem[]).filter((i) => matches(i, filters)),
+    completions: (completions.data as CompletedItem[]).filter((i) => matches(i, filters)),
     snapshots: ((snapshots.data ?? []) as Snapshot[]).reverse(),
     lastSuccess: lastSuccess.data as SyncRun | null,
     lastRun: lastRun.data as SyncRun | null,

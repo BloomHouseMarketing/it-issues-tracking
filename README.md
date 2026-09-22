@@ -36,8 +36,8 @@ You can also paste `supabase/queries/verify_counts.sql` into the SQL editor.
 
 One page at `/`, behind a password login (`DASHBOARD_PASSWORD`).
 
-- KPI cards, monthly on-time vs late, the overdue trend, late completions by company and assignee, the overdue table and the last 30 days of completions.
-- Filters (completion date range, company, assignee) live in the URL, so a filtered view can be bookmarked or shown on a TV.
+- KPI cards, monthly on-time vs late, the overdue trend, late completions by company and assignee, the overdue table and the completions in the selected range.
+- Filters live in the URL, so a filtered view can be bookmarked or shown on a TV. Date presets (Today … Last 6 months, All time) or a custom calendar range; searchable company and assignee pickers. The monthly chart always shows the last 6 months.
 - The page re-fetches every 5 minutes. "Refresh now" runs a full sync right away.
 - Dark theme only: the required Report colors need a dark background for contrast.
 

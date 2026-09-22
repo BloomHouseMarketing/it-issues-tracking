@@ -49,8 +49,8 @@ export function OverdueTable({ items }: { items: OpenItem[] }) {
   );
 }
 
-export function RecentTable({ items }: { items: CompletedItem[] }) {
-  if (items.length === 0) return <p className="py-8 text-center text-ink-3">No rated completions in the last 30 days.</p>;
+export function CompletionsTable({ items }: { items: CompletedItem[] }) {
+  if (items.length === 0) return <p className="py-8 text-center text-ink-3">No rated completions in this date range.</p>;
   return (
     <div className="max-h-[32rem] overflow-auto">
       <table className="w-full text-sm">
