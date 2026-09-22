@@ -1,0 +1,44 @@
+[
+  {
+    "id": "a1",
+    "event": "update_column_value",
+    "created_at": "17891280000000000",
+    "data": "{\"board_id\":7364661326,\"group_id\":\"new_group60142\",\"is_top_group\":true,\"pulse_id\":7390000001,\"pulse_name\":\"Replace printer toner - front desk\",\"column_id\":\"status\",\"column_type\":\"color\",\"column_title\":\"Status\",\"value\":{\"label\":{\"index\":1,\"text\":\"Completed\",\"style\":{\"color\":\"#00c875\",\"border\":\"#00b461\",\"var_name\":\"green-shadow\"},\"is_done\":true},\"post_id\":null},\"previous_value\":{\"label\":{\"index\":0,\"text\":\"Working on it\",\"style\":{\"color\":\"#fdab3d\",\"border\":\"#e99729\",\"var_name\":\"orange\"},\"is_done\":false},\"post_id\":null},\"is_column_with_hide_permissions\":false,\"previous_textual_value\":\"Working on it\"}"
+  },
+  {
+    "id": "a2",
+    "event": "update_column_value",
+    "created_at": "17890416000000000",
+    "data": "{\"board_id\":7364661326,\"pulse_id\":7390000001,\"column_id\":\"status\",\"value\":{\"label\":{\"index\":1,\"text\":\"Completed\",\"is_done\":true}},\"previous_value\":null}"
+  },
+  {
+    "id": "a3",
+    "event": "update_column_value",
+    "created_at": "17891000000000000",
+    "data": "{\"board_id\":7364661326,\"pulse_id\":7390000001,\"column_id\":\"status\",\"value\":{\"label\":{\"index\":0,\"text\":\"Working on it\",\"is_done\":false}},\"previous_value\":{\"label\":{\"index\":1,\"text\":\"Completed\",\"is_done\":true}}}"
+  },
+  {
+    "id": "a4",
+    "event": "update_column_value",
+    "created_at": "17891500000000000",
+    "data": "{\"board_id\":7364661326,\"pulse_id\":7390000003,\"column_id\":\"status\",\"value\":{\"label\":{\"index\":1,\"text\":\"Completed\",\"is_done\":true}},\"previous_value\":{\"label\":{\"index\":5,\"text\":\"Complete\",\"is_done\":true}}}"
+  },
+  {
+    "id": "a5",
+    "event": "update_column_value",
+    "created_at": "17891600000000000",
+    "data": "{\"board_id\":7364661326,\"pulse_id\":7390000004,\"column_id\":\"status\",\"value\":{\"label\":{\"index\":0,\"text\":\"Working on it\",\"is_done\":false}},\"previous_value\":null}"
+  },
+  {
+    "id": "a6",
+    "event": "update_column_value",
+    "created_at": "17891700000000000",
+    "data": "not json"
+  },
+  {
+    "id": "a7",
+    "event": "update_column_value",
+    "created_at": "17891800000000000",
+    "data": "{\"board_id\":7364661326,\"pulse_id\":7390000005,\"column_id\":\"status_1\",\"value\":{\"label\":{\"index\":1,\"text\":\"Done\",\"is_done\":true}},\"previous_value\":{\"label\":{\"index\":0,\"is_done\":false}}}"
+  }
+]
