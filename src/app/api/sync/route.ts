@@ -6,7 +6,7 @@ export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
 async function handle(request: Request): Promise<Response> {
-  if (!isAuthorizedSyncRequest(request.headers.get("authorization"), process.env.SYNC_SECRET)) {
+  if (!isAuthorizedSyncRequest(request.headers.get("authorization"), process.env.CRON_SECRET)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
@@ -18,6 +18,6 @@ async function handle(request: Request): Promise<Response> {
   }
 }
 
-// POST for n8n and manual calls; GET because Vercel Cron sends GET requests.
+// GET for Vercel Cron; POST for manual calls.
 export const POST = handle;
 export const GET = handle;

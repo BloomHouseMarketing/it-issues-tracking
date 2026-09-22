@@ -63,13 +63,13 @@ monday.com --(GraphQL, server-side)--> /api/sync (Next.js route) --upsert--> Sup
 
 ### Sync (`/api/sync`)
 
-- Protected: requires header `Authorization: Bearer ${SYNC_SECRET}`. Reject anything else.
+- Protected: requires header `Authorization: Bearer ${CRON_SECRET}` (Vercel Cron sends this automatically). Reject anything else.
 - Fetches **all items in both groups** (paginated) with the columns listed above, and upserts them into `monday_items`.
 - Deletes rows for items that are no longer in either group (for example, deleted or moved back).
 - **completed_at:** derive it from the board's activity log (`boards { activity_logs(column_ids: ["status"], limit: 500, page: N) }`). Use the latest event where `value.label.is_done === true` and `previous_value.label.is_done !== true`. `created_at` is in units of 100 ns, so `ms = Number(created_at) / 1e4`. There are about 1,200 status events in total, so reading all pages on each run is fine. After a full run, the sync can switch to reading only recent pages.
 - Writes a row to `sync_runs` (started_at, finished_at, items_synced, ok, error).
 - Must stay within monday's API complexity budget: request only the needed columns, run pages sequentially, and retry once after 60 s if the error mentions "Complexity budget exhausted".
-- Trigger: every 15 minutes. Use Vercel Cron if the Vercel plan allows sub-daily crons. Otherwise, the existing **n8n** instance can call `/api/sync` on a schedule. Also add a "Refresh now" button in the UI that calls a server action, which triggers the sync.
+- Trigger: every 15 minutes via **Vercel Cron** (GET `/api/sync`). No n8n involvement in the sync; the app reads the monday board directly. Sub-daily crons need the Vercel Pro plan. Also add a "Refresh now" button in the UI that calls a server action, which triggers the sync.
 
 ### Supabase schema
 
@@ -140,7 +140,7 @@ Pick one before building UI pages; the default is Vercel password protection.
 | `MONDAY_API_TOKEN` | Vercel (server only) | Read-only use; never expose to the client |
 | `SUPABASE_URL` | Vercel | |
 | `SUPABASE_SERVICE_ROLE_KEY` | Vercel (server only) | Never expose to the client |
-| `SYNC_SECRET` | Vercel + the caller (Vercel Cron or n8n) | Random 32+ character string |
+| `CRON_SECRET` | Vercel | Random 32+ character string; Vercel Cron sends it as a Bearer token |
 
 Never commit secrets. Provide `.env.example`.
 

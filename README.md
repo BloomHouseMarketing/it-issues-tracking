@@ -21,12 +21,13 @@ Shows how the Coastal IT team performs against due dates. Data is synced from th
 ```bash
 npm run sync      # runs one full sync, then prints counts
 npm run counts    # prints counts only
+npm run sync -- --dry-run   # reads monday only, writes nothing
 ```
 
 Or call the deployed route:
 
 ```bash
-curl -X POST https://<your-app>/api/sync -H "Authorization: Bearer $SYNC_SECRET"
+curl -X POST https://<your-app>/api/sync -H "Authorization: Bearer $CRON_SECRET"
 ```
 
 You can also paste `supabase/queries/verify_counts.sql` into the SQL editor.

@@ -19,7 +19,7 @@ function req(auth?: string, method = "POST") {
 
 describe("/api/sync auth", () => {
   beforeEach(() => {
-    vi.stubEnv("SYNC_SECRET", SECRET);
+    vi.stubEnv("CRON_SECRET", SECRET);
     vi.mocked(runSyncFromEnv).mockClear();
   });
   afterEach(() => vi.unstubAllEnvs());
@@ -36,8 +36,8 @@ describe("/api/sync auth", () => {
     expect(runSyncFromEnv).not.toHaveBeenCalled();
   });
 
-  it("rejects everything when SYNC_SECRET is not configured", async () => {
-    vi.stubEnv("SYNC_SECRET", "");
+  it("rejects everything when CRON_SECRET is not configured", async () => {
+    vi.stubEnv("CRON_SECRET", "");
     const res = await POST(req("Bearer "));
     expect(res.status).toBe(401);
     expect(isAuthorizedSyncRequest("Bearer x", undefined)).toBe(false);

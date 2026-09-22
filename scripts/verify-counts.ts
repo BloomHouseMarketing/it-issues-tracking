@@ -1,10 +1,10 @@
-// Prints item counts from Supabase so they can be checked against monday.
-// Usage: npm run counts   (reads .env.local)
+// Prints item counts so they can be checked against monday.
+// Usage: npm run counts   (reads .env.local; counts what is stored in Supabase)
 import { GROUPS, isTestItem } from "../src/lib/config";
 import { createAdminClient } from "../src/lib/supabase/admin";
 import { dateInPT } from "../src/lib/time";
 
-interface Row {
+export interface CountRow {
   item_id: number;
   name: string;
   group_id: string;
@@ -13,9 +13,9 @@ interface Row {
   completed_at: string | null;
 }
 
-async function loadRows(): Promise<Row[]> {
+async function loadRows(): Promise<CountRow[]> {
   const db = createAdminClient();
-  const rows: Row[] = [];
+  const rows: CountRow[] = [];
   for (let from = 0; ; from += 1000) {
     const { data, error } = await db
       .from("monday_items")
@@ -23,35 +23,25 @@ async function loadRows(): Promise<Row[]> {
       .order("item_id")
       .range(from, from + 999);
     if (error) throw new Error(error.message);
-    rows.push(...(data as Row[]));
+    rows.push(...(data as CountRow[]));
     if (data.length < 1000) return rows;
   }
 }
 
-function tally(rows: Row[]): Record<string, number> {
+function tally(rows: CountRow[]): Record<string, number> {
   const out: Record<string, number> = {};
   for (const r of rows) out[r.report ?? "(blank)"] = (out[r.report ?? "(blank)"] ?? 0) + 1;
   return out;
 }
 
-export async function printCounts() {
-  const rows = await loadRows();
-  const today = dateInPT(new Date());
+export function summarizeCounts(rows: CountRow[], now = new Date()) {
+  const today = dateInPT(now);
   const completed = rows.filter((r) => r.group_id === GROUPS.completed);
   const todo = rows.filter((r) => r.group_id === GROUPS.todo);
   const classified = completed.filter((r) => ["Early", "On Time", "Late"].includes(r.report ?? ""));
   const classifiedReal = classified.filter((r) => !isTestItem(r.name));
   const todoReal = todo.filter((r) => !isTestItem(r.name));
-
-  const { data: lastRun } = await createAdminClient()
-    .from("sync_runs")
-    .select("*")
-    .order("started_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  const out = {
-    last_sync_run: lastRun,
+  return {
     total_rows: rows.length,
     completed_group: {
       all_items: completed.length,
@@ -71,7 +61,17 @@ export async function printCounts() {
       no_due_date: todoReal.filter((r) => !r.due_date).length,
     },
   };
-  console.log(JSON.stringify(out, null, 2));
+}
+
+export async function printCounts() {
+  const rows = await loadRows();
+  const { data: lastRun } = await createAdminClient()
+    .from("sync_runs")
+    .select("*")
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  console.log(JSON.stringify({ last_sync_run: lastRun, ...summarizeCounts(rows) }, null, 2));
 }
 
 if (process.argv[1]?.endsWith("verify-counts.ts")) {
