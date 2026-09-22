@@ -15,6 +15,8 @@ export interface SyncStore {
   loadExisting(): Promise<Map<number, string | null>>;
   upsertItems(rows: MondayItemRow[]): Promise<void>;
   deleteItems(itemIds: number[]): Promise<void>;
+  /** Records today's counts in daily_snapshots. */
+  takeSnapshot(): Promise<void>;
 }
 
 export interface SyncResult {
@@ -24,6 +26,8 @@ export interface SyncResult {
   deleted: number;
   byGroup: Record<string, number>;
   completedAtFound: number;
+  /** Set if the items synced but the daily snapshot failed. */
+  snapshotError?: string;
   error?: string;
 }
 
@@ -37,13 +41,20 @@ export async function runSync({ query, store, now = () => new Date() }: SyncDeps
   const runId = await store.startRun(now());
   try {
     const result = await syncItems(query, store, now());
+    // The snapshot is a side feature: a failure here should not fail the sync.
+    let snapshotError: string | undefined;
+    try {
+      await store.takeSnapshot();
+    } catch (err) {
+      snapshotError = err instanceof Error ? err.message : String(err);
+    }
     await store.finishRun(runId, {
       finishedAt: now(),
       itemsSynced: result.itemsSynced,
       ok: true,
-      error: null,
+      error: snapshotError ? `snapshot failed: ${snapshotError}` : null,
     });
-    return { ok: true, runId, ...result };
+    return { ok: true, runId, ...result, ...(snapshotError ? { snapshotError } : {}) };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     await store.finishRun(runId, { finishedAt: now(), itemsSynced: null, ok: false, error: message });

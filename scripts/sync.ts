@@ -18,6 +18,7 @@ async function dryRun() {
     loadExisting: async () => new Map(),
     upsertItems: async (r) => void (rows = r),
     deleteItems: async () => {},
+    takeSnapshot: async () => {},
   };
   const result = await runSync({ query: createMondayClient({ token }), store });
   console.log(JSON.stringify(result, null, 2));

@@ -32,10 +32,12 @@ function bigBoard(): FakeBoard {
 describe("runSync", () => {
   it("syncs both groups, derives completed_at and logs a successful run", async () => {
     const fake = createFakeMonday(bigBoard());
-    const { store, items, runs } = createMemoryStore();
+    const { store, items, runs, snapshots } = createMemoryStore();
     const res = await runSync({ query: createMondayClient({ token: "t", fetch: fake.fetch }), store, now: () => NOW });
 
     expect(res.ok).toBe(true);
+    expect(snapshots.count).toBe(1);
+    expect(res.snapshotError).toBeUndefined();
     expect(res.itemsSynced).toBe(650);
     expect(res.byGroup).toEqual({ new_group60142: 30, group_title: 620 });
     expect(res.completedAtFound).toBe(600);
@@ -57,6 +59,25 @@ describe("runSync", () => {
       "StatusLog",
       "StatusLog",
     ]);
+  });
+
+  it("still succeeds, with a warning, when the daily snapshot fails", async () => {
+    const fake = createFakeMonday(bigBoard());
+    const { store, items, runs, snapshots } = createMemoryStore();
+    snapshots.fail = "function take_daily_snapshot() does not exist";
+    const res = await runSync({ query: createMondayClient({ token: "t", fetch: fake.fetch }), store, now: () => NOW });
+    expect(res.ok).toBe(true);
+    expect(res.snapshotError).toMatch(/does not exist/);
+    expect(items.size).toBe(650);
+    expect(runs[0]).toMatchObject({ ok: true, items_synced: 650 });
+    expect(runs[0].error).toMatch(/snapshot failed/);
+  });
+
+  it("does not take a snapshot when the sync fails", async () => {
+    const { store, snapshots } = createMemoryStore();
+    const failing = (async () => new Response(JSON.stringify({ errors: [{ message: "boom" }] }))) as typeof fetch;
+    await runSync({ query: createMondayClient({ token: "t", fetch: failing }), store, now: () => NOW });
+    expect(snapshots.count).toBe(0);
   });
 
   it("deletes rows for items no longer in either group", async () => {

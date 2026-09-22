@@ -5,8 +5,8 @@ Shows how the Coastal IT team performs against due dates. Data is synced from th
 ## Status
 
 - [x] Phase 1: Supabase schema (`supabase/migrations/`)
-- [x] Phase 2: `/api/sync` with unit tests. **Waiting on a first live run and count check.**
-- [ ] Phase 3: SQL views
+- [x] Phase 2: `/api/sync` with unit tests; initial sync verified (302 real rated items: 43 Early, 89 On Time, 170 Late)
+- [x] Phase 3: SQL views (`supabase/migrations/20260922010000_metric_views.sql`)
 - [ ] Phase 4: Dashboard UI
 - [ ] Phase 5: Scheduled sync, access control, Vercel deploy
 
@@ -14,7 +14,7 @@ Shows how the Coastal IT team performs against due dates. Data is synced from th
 
 1. `npm install`
 2. Copy `.env.example` to `.env.local` and fill in all four values.
-3. Apply the migration: paste `supabase/migrations/20260922000000_initial_schema.sql` into the Supabase SQL editor, or run `supabase db push` with the Supabase CLI.
+3. Apply the migrations in order: paste each file in `supabase/migrations/` into the Supabase SQL editor, or run `supabase db push` with the Supabase CLI.
 
 ## Run the sync and check counts
 
@@ -31,6 +31,23 @@ curl -X POST https://<your-app>/api/sync -H "Authorization: Bearer $CRON_SECRET"
 ```
 
 You can also paste `supabase/queries/verify_counts.sql` into the SQL editor.
+
+## Metrics in SQL
+
+All metric logic lives in the database so every screen agrees. Everything excludes test items and is locked to the service-role key.
+
+| Object | What it returns |
+|---|---|
+| `v_completed_performance` | One row per rated completion (Early / On Time / Late), with Pacific-time completion date and month |
+| `completed_performance_summary(p_from, p_to, p_company, p_assignee)` | KPI row: counts, on-time rate, average / median / max days late. All filters optional |
+| `completed_performance_breakdown(p_dimension, …same filters)` | The same KPIs per `month`, `company` or `assignee` |
+| `v_open_items` | To Do – Coastal items |
+| `v_overdue_now` | Overdue items with days overdue (today PT − due date) and monday link |
+| `v_open_work_summary` | Open total, overdue now, due today, no due date |
+| `v_recent_completions` | Rated completions from the last 30 days |
+| `take_daily_snapshot()` | Writes today's counts to `daily_snapshots`; runs after every sync |
+
+`npm run check:metrics` recomputes every metric in TypeScript from the raw rows and compares it with the SQL output.
 
 ## Development
 

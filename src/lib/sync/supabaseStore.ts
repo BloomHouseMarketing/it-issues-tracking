@@ -68,5 +68,10 @@ export function createSupabaseStore(db: SupabaseClient): SyncStore {
         check(error, "delete monday_items");
       }
     },
+
+    async takeSnapshot() {
+      const { error } = await db.rpc("take_daily_snapshot");
+      check(error, "take_daily_snapshot");
+    },
   };
 }

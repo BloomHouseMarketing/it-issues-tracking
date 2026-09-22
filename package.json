@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "typecheck": "next typegen && tsc --noEmit",
     "sync": "node --env-file-if-exists=.env.local --import tsx scripts/sync.ts",
-    "counts": "node --env-file-if-exists=.env.local --import tsx scripts/verify-counts.ts"
+    "counts": "node --env-file-if-exists=.env.local --import tsx scripts/verify-counts.ts",
+    "check:metrics": "node --env-file-if-exists=.env.local --import tsx scripts/check-metrics.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.0",
