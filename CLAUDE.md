@@ -36,7 +36,7 @@ The Completed group has 500+ items, so reads must use `items_page` with **cursor
 
 ## Metrics (definitions are authoritative)
 
-Exclude any item whose name starts with `[TEST` everywhere.
+Exclude test items everywhere: any item whose name contains the word "test" at the start of a word, in any case (e.g. `[TEST – ignore] Late`, `Other - Jessa Test`, `testing`). Words like "latest" or "contest" do not count. In SQL: `name ~* '\mtest'`. Test items are still stored in `monday_items`; they are excluded when metrics are calculated.
 
 ### Completed performance (Completed group)
 
@@ -151,7 +151,7 @@ Never commit secrets. Provide `.env.example`.
 - Test the sync logic (pagination, activity log parsing, PT date math) with unit tests using fixture data.
 - Build in phases, and confirm each phase works before moving on:
   1. Supabase schema and migrations
-  2. `/api/sync` with tests; run it once and verify counts. Expected roughly: Completed with Report ≈ 302 real items (43 Early, 89 On Time, 170 Late) plus 3 test items that must be excluded, and To Do – Coastal ≈ 30 items.
+  2. `/api/sync` with tests; run it once and verify counts. Expected roughly: Completed with Report ≈ 302 real items (43 Early, 89 On Time, 170 Late) plus test items that must be excluded, and To Do – Coastal ≈ 30 items.
   3. SQL views
   4. Dashboard UI
   5. Scheduled sync and access control, then deploy to Vercel

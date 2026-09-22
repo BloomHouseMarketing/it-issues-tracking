@@ -21,10 +21,17 @@ export const COLUMN_IDS: string[] = Object.values(COLUMNS);
 export const REPORT_LABELS = ["Early", "On Time", "Overdue", "Late"] as const;
 export type ReportLabel = (typeof REPORT_LABELS)[number];
 
-export const TEST_ITEM_PREFIX = "[TEST";
+/**
+ * Test items: "test" at the start of a word, any case. Matches "[TEST – ignore]",
+ * "Other - Jessa Test", "testing"; does not match "latest", "contest", "attest".
+ * Keep in sync with TEST_ITEM_SQL_REGEX.
+ */
+export const TEST_ITEM_REGEX = /\btest/i;
+/** Postgres equivalent, for `name ~* '\mtest'` (\m = start of word). */
+export const TEST_ITEM_SQL_REGEX = "\\mtest";
 
 export function isTestItem(name: string): boolean {
-  return name.startsWith(TEST_ITEM_PREFIX);
+  return TEST_ITEM_REGEX.test(name);
 }
 
 export function mondayItemUrl(itemId: number | string): string {

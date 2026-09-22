@@ -48,4 +48,4 @@ npm run dev
 3. Upserts all rows into `monday_items`, then deletes rows for items that are in neither group. If monday returns zero items, the run fails instead of emptying the table.
 4. Logs the run in `sync_runs`. If monday reports "Complexity budget exhausted", the sync waits 60 s and retries once.
 
-`[TEST` items are stored as-is and excluded when metrics are calculated (the Phase 3 views). The sync never writes to monday.com.
+Test items (any word starting with "test" in the name, any case) are stored as-is and excluded when metrics are calculated (the Phase 3 views). The sync never writes to monday.com.
