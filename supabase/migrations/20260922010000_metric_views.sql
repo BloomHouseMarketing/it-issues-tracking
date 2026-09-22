@@ -16,7 +16,7 @@ as $$
 $$;
 
 -- True for test items: a word starting with "test", any case.
--- Matches "[TEST – ignore] Late", "Other - Jessa Test", "testing";
+-- Matches "[TEST - ignore] Late", "Other - Jessa Test", "testing";
 -- not "latest" or "contest". Keep in sync with TEST_ITEM_REGEX in src/lib/config.ts.
 create or replace function public.is_test_item(item_name text)
 returns boolean
